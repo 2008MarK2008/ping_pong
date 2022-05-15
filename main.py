@@ -27,8 +27,8 @@ class GameSprite(sprite.Sprite):
             self.rect.y += self.speed
 
 class Ball(GameSprite):
-    def init(self, startpos, velocity, startdir):
-        super().init('ball.png', W_mw/2 - 15, H_mw/2 - 15, 30, 30, 7)
+    def __init__(self, startpos, velocity, startdir):
+        super().__init__('ball.png', W_mw/2 - 15, H_mw/2 - 15, 30, 30, 7)
         self.pos = math.Vector2(startpos)
         self.velocity = velocity
         self.dir = math.Vector2(startdir).normalize()
@@ -42,16 +42,22 @@ class Ball(GameSprite):
 RC1 = GameSprite('rc.png', 10, H_mw/2 - 53, 16, 106, 5)
 RC2 = GameSprite('rc.png', W_mw - 26, H_mw/2 - 53, 16, 106, 5)
 
+direction_x = bool(getrandbits(1)) 
+if direction_x:
+    direction_x = random()*-1
+else:
+    direction_x = random()
+
 ball = GameSprite('ball.png', W_mw/2 - 15, H_mw/2 - 15, 30, 30, 7)
-ball = Ball(mw.get_rect().center, 3, (random(), random()))
+ball = Ball(mw.get_rect().center, 6, (direction_x, random()))
 
 game = True
 while game:
     for e in event.get():
         if e.type == QUIT:
             game = False
-    RC1.move(K_UP, K_DOWN)
-    RC2.move(K_w, K_s)
+    RC1.move(K_w, K_s)
+    RC2.move(K_UP, K_DOWN)
     if ball.rect.left <= 0:
         ball.reflect((1, 0))
     if ball.rect.right >= W_mw:
@@ -60,6 +66,17 @@ while game:
         ball.reflect((0, 1))
     if ball.rect.bottom >= H_mw:
         ball.reflect((0, -1))
+    
+    if ball.rect.colliderect(RC1.rect):
+        ball.reflect((1, 0))
+        a = ball.rect.centery
+        b = RC1.rect.centery
+        c = abs(b-a)
+    if ball.rect.colliderect(RC2.rect):
+        ball.reflect((-1, 0))
+        a = ball.rect.centery
+        b = RC2.rect.centery
+        c = abs(b-a)
     mw.fill(back)
     RC1.reset()
     RC2.reset()
